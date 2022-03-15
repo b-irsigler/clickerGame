@@ -19,7 +19,7 @@ player_names = ['lionking_player', 'ruegenwalder_player', 'synthwave_player']
 resource_names = ['lionking_resource', 'ruegenwalder_resource', 'synthwave_resource']
 drop_names = ['lionking_drop', 'ruegenwalder_drop', 'synthwave_drop']
 
-level_ups = [0, 100, 1000]
+level_ups = [100000000, 10000, 100]
 drop_velocities = [6, 6, 6]
 
 
@@ -168,9 +168,9 @@ class Game:
         pygame.display.flip()
 
     def level_or_loose(self):
-        if self.level == 1 and self.score >= level_ups[self.level]:
-        #if level_ups[self.level] <= self.score:
+        if self.score >= level_ups[-1]:
             self.level_up()
+            level_ups.pop()
         if self.score < 0:
             self.running = False
 
