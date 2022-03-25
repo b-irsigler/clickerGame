@@ -25,12 +25,13 @@ def get_image_names(themes):
     return _background_names, _player_names, _resource_names, _drop_names
 
 
-background_names, player_names, resource_names, drop_names = get_image_names(['lionking', 'ruegenwalder', 'synthwave'])
+background_names, player_names, resource_names, drop_names = get_image_names(['lionking', 'synthwave', 'ruegenwalder'])
+music_names = ['sound/LionKing.ogg', 'sound/Lazerhawk.mp3']
 
-level_ups = []
+lvls = []
 for i in range(2, 10):
-    level_ups.append(10 ** i)
-level_ups = level_ups[::-1]
+    lvls.append(10 ** i)
+lvls = lvls[::-1]
 
 drop_velocities = [6, 6, 6]
 
@@ -181,6 +182,7 @@ class Game:
         self.resource = Resource()
         self.drop = Drop()
         self.levelBar = LevelBar()
+        self.level_ups = lvls
         self.font = pygame.font.SysFont(None, 72)
         self.background = None
         self.running = None
@@ -188,6 +190,8 @@ class Game:
 
     def level_up(self):
         if self.level < len(background_names):
+            pygame.mixer.music.load(music_names[self.level])
+            pygame.mixer.music.play()
             self.background = pygame.image.load(image_name_to_path(background_names[self.level]))
             self.player.skin(player_names[self.level])
             self.resource.skin(resource_names[self.level])
@@ -207,7 +211,7 @@ class Game:
         if self.player.rect.colliderect(self.resource.rect):
             self.score += self.factor
             self.resource.shrink_by(self.factor)
-            self.levelBar.update(self.score, level_ups[-1])
+            self.levelBar.update(self.score, self.level_ups[-1])
             return 5
         else:
             return 0
@@ -239,21 +243,22 @@ class Game:
 
     def score_update(self):
         self.highscore = max(self.score, self.highscore)
-        if self.score >= level_ups[-1]:
+        if self.score >= self.level_ups[-1]:
             self.level_up()
-            level_ups.pop()
-            self.levelBar.update(self.score, level_ups[-1])
+            self.level_ups.pop()
+            self.levelBar.update(self.score, self.level_ups[-1])
         if self.score < 0:
             self.running = False
             self.menu()
 
     def run(self):
         self.score = 30
-        level_ups = [100000000, 10000, 100]
-        self.level = 1
+        self.level_ups = lvls
+        self.level = 0
+        self.level_up()
         self.factor = 1
         self.running = True
-        self.levelBar.update(self.score, level_ups[-1])
+        self.levelBar.update(self.score, self.level_ups[-1])
         click_timer = 0
         clock = pygame.time.Clock()
         while self.running:
@@ -286,6 +291,8 @@ class Game:
             clock.tick(60)
 
     def menu(self):
+        pygame.mixer.music.load('sound/Tristram.ogg')
+        pygame.mixer.music.play()
         self.running = True
         clock = pygame.time.Clock()
         start_button = Button('Start')
@@ -320,5 +327,4 @@ class Game:
 
 
 game = Game()
-game.level_up()
 game.menu()
